@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Mill</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+
+    <link rel="stylesheet" href="style.css">
+    <script src="three.js"></script>
+    <script src="Detector.js"></script>
+</head>
+
+
+<body>
+    <div id="WebGLCanvas"> </div>
+
+    <script>
+        var scene;
+        var camera;
+        var wingsMesh;
+        var starMesh;
+        // var renderer
+
+        initializeScene();
+
+        renderScene();
+
+        animateScene();
+
+
+        function initializeScene() {
+
+            if (Detector.webgl) {
+                renderer = new THREE.WebGLRenderer({
+                    antialias: true
+                });
+            } else {
+                renderer = new THREE.CanvasRenderer();
+            }
+
+            renderer.setClearColor(0x88cc9a, 1);
+
+            var canvasWidth = window.innerWidth;
+            var canvasHeight = window.innerHeight;
+
+            renderer.setSize(canvasWidth, canvasHeight);
+            document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100);
+            camera.position.set(0, 4, 25);
+            camera.lookAt(scene.position);
+            scene.add(camera);
+
+
+
+
+            // add roof
+            var triangleGeometry = new THREE.Geometry();
+            triangleGeometry.vertices.push(new THREE.Vector3(0.0, 2.0, 0.0));
+            triangleGeometry.vertices.push(new THREE.Vector3(-1.0, -1, 0.0));
+            triangleGeometry.vertices.push(new THREE.Vector3(1.0, -1, 0.0));
+            triangleGeometry.faces.push(new THREE.Face3(0, 1, 2));
+
+            var triangleMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00354d,
+                side: THREE.DoubleSide
+            });
+
+            var triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+            triangleMesh.position.set(-2.0, -2, 4.0);
+            scene.add(triangleMesh);
+
+            // add wall
+            var wallGeometry = new THREE.Geometry();
+            wallGeometry.vertices.push(new THREE.Vector3(-1.0, 1.0, 0));
+            wallGeometry.vertices.push(new THREE.Vector3(1.0, 1.0, 0));
+            wallGeometry.vertices.push(new THREE.Vector3(1.0, -1.0, 0));
+            wallGeometry.vertices.push(new THREE.Vector3(-1.0, -1.0, 0));
+            wallGeometry.faces.push(new THREE.Face3(0, 1, 2))
+            wallGeometry.faces.push(new THREE.Face3(0, 2, 3))
+
+            var wallMaterial = new THREE.MeshBasicMaterial({
+                color: 0x0f1f3f,
+                side: THREE.DoubleSide
+            });
+
+            var wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+            wallMesh.position.set(-2.0, -4, 4.0);
+            scene.add(wallMesh);
+
+
+            //add wheel
+            var wheelGeometry = new THREE.CircleGeometry(0.25, 30);
+
+            var wheelMaterial = new THREE.MeshBasicMaterial({
+                color: 0x000d37,
+                side: THREE.DoubleSide
+            });
+            var wheelMesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
+            wheelMesh.position.set(-2.0, -2.0, 4.2);
+            scene.add(wheelMesh);
+
+            //add wings
+            var wingsGeometry = new THREE.Geometry();
+            wingsGeometry.vertices.push(new THREE.Vector3(-0.1, 0.1, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(-0.2, 2.0, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(0.2, 2.0, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(0.1, 0.1, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(2.0, 0.2, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(2.0, -0.2, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(0.1, -0.1, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(0.2, -2.0, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(-0.2, -2.0, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(-0.1, -0.1, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(-2, -0.2, 0));
+            wingsGeometry.vertices.push(new THREE.Vector3(-2, 0.2, 0));
+            wingsGeometry.faces.push(new THREE.Face3(0, 1, 2))
+            wingsGeometry.faces.push(new THREE.Face3(0, 2, 3))
+            wingsGeometry.faces.push(new THREE.Face3(3, 4, 5))
+            wingsGeometry.faces.push(new THREE.Face3(3, 5, 6))
+            wingsGeometry.faces.push(new THREE.Face3(6, 7, 8))
+            wingsGeometry.faces.push(new THREE.Face3(6, 8, 9))
+            wingsGeometry.faces.push(new THREE.Face3(9, 10, 11))
+            wingsGeometry.faces.push(new THREE.Face3(9, 11, 0))
+
+            var wingsMaterial = new THREE.MeshBasicMaterial({
+                color: 0x000d37,
+                side: THREE.DoubleSide
+            });
+
+            wingsMesh = new THREE.Mesh(wingsGeometry, wingsMaterial);
+            wingsMesh.position.set(-2.0, -2.0, 4.1);
+            scene.add(wingsMesh);
+
+            //add ground1
+            var ground1Geometry = new THREE.Geometry();
+            ground1Geometry.vertices.push(new THREE.Vector3(-20, -13, 0));
+            ground1Geometry.vertices.push(new THREE.Vector3(2, 1, 0));
+            ground1Geometry.vertices.push(new THREE.Vector3(5, 0, 0));
+            ground1Geometry.vertices.push(new THREE.Vector3(25, 3, 0))
+            ground1Geometry.vertices.push(new THREE.Vector3(25, -13, 0))
+
+            ground1Geometry.faces.push(new THREE.Face3(0, 1, 2));
+            ground1Geometry.faces.push(new THREE.Face3(0, 2, 3))
+            ground1Geometry.faces.push(new THREE.Face3(0, 3, 4))
+
+            var ground1Material = new THREE.MeshBasicMaterial({
+                color: 0x128279,
+                side: THREE.DoubleSide
+            });
+
+            ground1Mesh = new THREE.Mesh(ground1Geometry, ground1Material);
+            ground1Mesh.position.set(0.0, 0.0, 3.0);
+            scene.add(ground1Mesh);
+
+            //add ground2
+            var ground2Geometry = new THREE.Geometry();
+            ground2Geometry.vertices.push(new THREE.Vector3(-20, -17, 0));
+            ground2Geometry.vertices.push(new THREE.Vector3(2, 0, 0));
+            ground2Geometry.vertices.push(new THREE.Vector3(5, -3, 0));
+            ground2Geometry.vertices.push(new THREE.Vector3(20, 1, 0))
+            ground2Geometry.vertices.push(new THREE.Vector3(30, -13, 0))
+
+            ground2Geometry.faces.push(new THREE.Face3(0, 1, 2));
+            ground2Geometry.faces.push(new THREE.Face3(0, 2, 3))
+            ground2Geometry.faces.push(new THREE.Face3(0, 3, 4))
+
+            var ground2Material = new THREE.MeshBasicMaterial({
+                color: 0xa3dca3,
+                side: THREE.DoubleSide
+            });
+
+            ground2Mesh = new THREE.Mesh(ground2Geometry, ground2Material);
+            ground2Mesh.position.set(-7.0, 5.0, 1.0);
+            scene.add(ground2Mesh);
+
+            //add ground3
+            var ground3Geometry = new THREE.Geometry();
+            ground3Geometry.vertices.push(new THREE.Vector3(-15, -15, 0));
+            ground3Geometry.vertices.push(new THREE.Vector3(-15, -3, 0));
+            ground3Geometry.vertices.push(new THREE.Vector3(10, -6, 0));
+            ground3Geometry.vertices.push(new THREE.Vector3(10, -10, 0));
+
+            ground3Geometry.faces.push(new THREE.Face3(0, 1, 2));
+            ground3Geometry.faces.push(new THREE.Face3(0, 2, 3));
+
+            var ground3Material = new THREE.MeshBasicMaterial({
+                color: 0x58ad89,
+                side: THREE.DoubleSide
+            });
+
+            ground3Mesh = new THREE.Mesh(ground3Geometry, ground3Material);
+            ground3Mesh.position.set(-7.0, 2.0, 2.0);
+            scene.add(ground3Mesh);
+
+            //add star
+            var starGeometry = new THREE.Geometry();
+            starGeometry.vertices.push(new THREE.Vector3(-0.1, 0.1, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(0.0, 1.0, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(0.1, 0.1, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(0.7, 0.0, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(0.1, -0.1, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(0.0, -1.0, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(-0.1, -0.1, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(-0.7, 0.0, 0.0))
+            starGeometry.vertices.push(new THREE.Vector3(-0.1, 0.1, 0.0))
+            starGeometry.faces.push(new THREE.Face3(0, 1, 2));
+            starGeometry.faces.push(new THREE.Face3(2, 3, 4));
+            starGeometry.faces.push(new THREE.Face3(4, 5, 6));
+            starGeometry.faces.push(new THREE.Face3(6, 7, 8));
+            starGeometry.faces.push(new THREE.Face3(0, 2, 6));
+            starGeometry.faces.push(new THREE.Face3(2, 4, 6));
+
+
+
+            var starMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide
+            });
+
+            starMesh = new THREE.Mesh(starGeometry, starMaterial);
+            starMesh.position.set(-1.0, 0.0, 0.0);
+            scene.add(starMesh);
+
+            //add sun
+            var sunGeometry = new THREE.CircleGeometry(1, 30);
+
+            var sunMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffcb64,
+                side: THREE.DoubleSide
+            });
+            var sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+            sunMesh.position.set(2.0, 2.0, 0.0);
+            scene.add(sunMesh);
+
+            //add sun lights
+            var sunLightGeometry = new THREE.CircleGeometry(1.2, 30);
+
+            var sunLightMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffff50,
+                side: THREE.DoubleSide
+            });
+            var sunLightMesh = new THREE.Mesh(sunLightGeometry, sunLightMaterial);
+            sunLightMesh.position.set(2.0, 2.0, -0.5);
+            scene.add(sunLightMesh);
+
+            //wind
+            var windGeometry = new THREE.Geometry();
+            windGeometry.vertices.push(new THREE.Vector3(-0.05, 1.0, 0));
+            windGeometry.vertices.push(new THREE.Vector3(0.05, 1.0, 0));
+            windGeometry.vertices.push(new THREE.Vector3(0.05, 0.0, 0));
+            windGeometry.vertices.push(new THREE.Vector3(-0.05, 0.0, 0));
+            windGeometry.faces.push(new THREE.Face3(0, 1, 2))
+            windGeometry.faces.push(new THREE.Face3(0, 2, 3))
+
+            var windMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide
+            });
+
+            var windMesh = new THREE.Mesh(windGeometry, windMaterial);
+            windMesh.position.set(-2.0, -4, 4.01);
+            scene.add(windMesh);
+
+
+            var speedStar = 3.14;
+            var speedSun = 0;
+            var speedWind = 0;
+
+            renderer.setAnimationLoop(function() {
+                speedWind += 0.05
+                speedSun += 0.004;
+                speedStar += 0.004;
+                starMesh.position.x = 13 * Math.cos(speedStar);
+                starMesh.position.y = 13 * Math.sin(speedStar) - 5;
+                sunMesh.position.x = 13 * Math.cos(speedSun);
+                sunMesh.position.y = 13 * Math.sin(speedSun) - 5;
+                sunLightMesh.position.x = 13 * Math.cos(speedSun);
+                sunLightMesh.position.y = 13 * Math.sin(speedSun) - 5;
+                windMesh.position.x = 3 * Math.cos(speedWind) - 1;
+                windMesh.position.y = 3 * Math.sin(speedWind) - 1.5;
+                windMesh.rotation.z += 0.05;
+                if (speedWind % 3.14 == 0) {
+                    speedWind += 0.5;
+                }
+                renderer.render(scene, camera);
+            });
+        }
+
+        function animateScene() {
+            wingsMesh.rotation.z += 0.02;
+            starMesh.rotation.y += 0.03;
+            requestAnimationFrame(animateScene);
+            renderScene();
+        }
+
+        function renderScene() {
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+
+</html>
